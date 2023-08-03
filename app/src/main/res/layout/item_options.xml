@@ -8,13 +8,22 @@
             name="quizOptionsModel"
             type="com.example.quizzapp.modules.quizModule.models.ui.QuizOptionsModel" />
 
+        <variable
+            name="eventListener"
+            type="com.example.quizzapp.modules.quizModule.ui.listeners.EventListener" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/bg_green_round"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:onClick="@{(view) -> eventListener.onOptionSelected(view, quizOptionsModel)}"
+        android:padding="16dp"
+        android:setCustomBackground="@{quizOptionsModel}">
 
         <TextView
             android:id="@+id/tv_option"
@@ -22,7 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:fontFamily="@font/alef"
-            android:text="Answer 1 2 3 4"
+            android:text="@{quizOptionsModel.option}"
+            android:textColor="@color/black"
             app:layout_constraintEnd_toStartOf="@id/iv_true_false"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -32,7 +42,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:src="@drawable/baseline_check_circle_24"
             app:layout_constraintBottom_toBottomOf="@id/tv_option"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/tv_option"

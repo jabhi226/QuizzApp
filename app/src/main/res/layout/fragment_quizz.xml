@@ -5,15 +5,30 @@
     tools:context=".modules.quizModule.ui.fragment.QuizzFragment">
 
     <data>
-
         <variable
             name="quizModel"
             type="com.example.quizzapp.modules.quizModule.models.ui.QuizModel" />
+
+        <variable
+            name="viewModel"
+            type="com.example.quizzapp.modules.quizModule.viewModel.QuizViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:padding="16dp"
+            android:layout_margin="16dp"
+            android:onClick="@{() -> viewModel.getPreviousQuestion()}"
+            android:clickable="@{viewModel.checkIfBackButtonIsClickable ? true : false}"
+            android:src="@drawable/baseline_arrow_back_ios_24"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/tv_question"
@@ -23,6 +38,7 @@
             android:background="@drawable/bg_blue_round"
             android:fontFamily="@font/alef"
             android:padding="16dp"
+            android:textColor="@color/black"
             android:text="@{quizModel.question}"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -36,7 +52,6 @@
             android:id="@+id/rv_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
             app:layout_constraintBottom_toTopOf="@id/tv_next"
             app:layout_constraintTop_toBottomOf="@id/tv_question" />
 
@@ -96,7 +111,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:background="@drawable/bg_blue_round"
-            android:backgroundTint="#198CFF"
+            android:onClick="@{() -> viewModel.getNextQuestion()}"
+            android:clickable="@{viewModel.isCurrentAnswerSelected ? true : false}"
+            android:backgroundTint="@{viewModel.isCurrentAnswerSelected ? @color/blue : @color/grey}"
             android:fontFamily="@font/alef"
             android:gravity="center"
             android:padding="16dp"
