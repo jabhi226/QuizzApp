@@ -6,11 +6,7 @@
 
         <variable
             name="quizOptionsModel"
-            type="com.example.quizzapp.modules.quizModule.models.ui.QuizOptionsModel" />
-
-        <variable
-            name="eventListener"
-            type="com.example.quizzapp.modules.quizModule.ui.listeners.EventListener" />
+            type="com.example.quizzapp.modules.quizModule.model.QuizOptionsModel" />
 
     </data>
 
@@ -21,7 +17,6 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
-        android:onClick="@{(view) -> eventListener.onOptionSelected(view, quizOptionsModel)}"
         android:padding="16dp"
         android:setCustomBackground="@{quizOptionsModel}">
 

@@ -5,4 +5,15 @@
     <color name="blue">#198CFF</color>
     <color name="green">#1CB347</color>
     <color name="grey">#808080</color>
+
+    <color name="color1">#2196F3</color>
+    <color name="color2">#F6E083</color>
+    <color name="color3">#AFCBFF</color>
+    <color name="color4">#707070</color>
+
+    <color name="success_green">#4CAF50</color>
+    <color name="error_red">#F44336</color>
+
+
+
 </resources>

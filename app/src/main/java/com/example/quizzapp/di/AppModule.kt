@@ -1,10 +1,12 @@
 package com.example.quizzapp.di
 
-import com.example.quizzapp.modules.core.constants.Endpoints
-import com.example.quizzapp.modules.quizModule.repository.QuizRepository
-import com.example.quizzapp.modules.quizModule.repository.QuizRepositoryImpl
-import com.example.quizzapp.modules.quizModule.network.QuizApiService
+import com.example.quizzapp.utils.Endpoints
+import com.example.quizzapp.domain.repository.QuizRepository
+import com.example.quizzapp.data.network.api.QuizApiService
+import com.example.quizzapp.data.repository.QuizRepositoryImpl
+import com.example.quizzapp.data.repository.QuizRepositoryTestImpl
 import com.google.gson.GsonBuilder
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -52,9 +54,8 @@ class AppModule {
         retrofit.create(QuizApiService::class.java)
 
     @Provides
-    @Singleton
     fun provideQuizRepository(quizApiService: QuizApiService): QuizRepository {
-        return QuizRepositoryImpl(quizApiService)
+        return QuizRepositoryTestImpl()
     }
 
 }

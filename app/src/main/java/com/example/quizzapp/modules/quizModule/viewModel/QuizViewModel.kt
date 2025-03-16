@@ -1,21 +1,18 @@
 package com.example.quizzapp.modules.quizModule.viewModel
 
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.quizzapp.modules.quizModule.repository.QuizRepository
-import com.example.quizzapp.modules.quizModule.models.ui.OptionBackground
-import com.example.quizzapp.modules.quizModule.models.ui.QuizModel
-import com.example.quizzapp.modules.quizModule.models.ui.QuizOptionsModel
-import com.example.quizzapp.modules.quizModule.ui.fragment.QuizzFragment
+import com.example.quizzapp.domain.repository.QuizRepository
+import com.example.quizzapp.modules.quizModule.model.DomainMapper.getModel
+import com.example.quizzapp.modules.quizModule.model.OptionBackground
+import com.example.quizzapp.modules.quizModule.model.QuizModel
+import com.example.quizzapp.modules.quizModule.model.QuizOptionsModel
+import com.example.quizzapp.modules.quizModule.screens.ClickEventType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,102 +22,126 @@ class QuizViewModel @Inject constructor(
     private val coroutineExceptionHandler: CoroutineExceptionHandler
 ) : ViewModel() {
 
-    private val scope = CoroutineScope(Dispatchers.IO + coroutineExceptionHandler)
+    val quizQuestionsListV2 = MutableStateFlow<MutableList<QuizModel>?>(null)
+    val currentQuestionNumber = MutableStateFlow(0)
 
-    val currentFragment = MutableStateFlow<Fragment>(QuizzFragment())
-
-    private val quizQuestionsList = MutableStateFlow<QuizResponseModel?>(null)
-    private val currentQuestionNumber = MutableStateFlow(0)
+    private val quizQuestionsList = MutableStateFlow<List<QuizModel>>(listOf())
     var isCurrentAnswerSelected = MutableStateFlow<Boolean?>(null)
     val checkIfBackButtonIsClickable = MutableStateFlow<Boolean?>(null)
 
     val uiEvent = MutableStateFlow<Int?>(null)
 
-    val currentQuestion = quizQuestionsList.combine(currentQuestionNumber) { l, qNumber ->
+//    val currentQuestionV2 = quizQuestionsListV2.combine(currentQuestionNumber) { list, number ->
+//        list ?: return@combine null
+//        if (list.size > number) {
+//            return@combine list[number]
+//        } else {
+//            return@combine null
+//        }
+//    }
+
+    val currentQuestion = quizQuestionsList.combine(currentQuestionNumber) { list, qNumber ->
         checkIfBackButtonIsClickable.emit(qNumber > 0)
-        when (l){
-            is QuizResponseModel.QuizOptionList -> {
-                if (l.list.size > qNumber){
-                    isCurrentAnswerSelected.emit(l.list[qNumber].options.any { it.isSelected })
-                    l.list[qNumber]
-                } else {
-                    // last quesiton
-                    uiEvent.emit((uiEvent.value ?: 1) + 1)
-                    null
-                }
-            }
-            is QuizResponseModel.Error, QuizResponseModel.Loading, null -> {
-                null
-            }
+        println("==>> QuizOptionList ${list.size}")
+        if (list.size > qNumber) {
+            isCurrentAnswerSelected.emit(list[qNumber].options.any { it.isSelected })
+            list[qNumber]
+        } else {
+            // last quesiton
+            uiEvent.emit((uiEvent.value ?: 1) + 1)
+            null
         }
     }
 
     init {
-        scope.launch {
+        viewModelScope.launch {
             getQuizQuestions()
         }
     }
 
     fun getNextQuestion() {
-        CoroutineScope(Dispatchers.Default).launch {
+        viewModelScope.launch {
             currentQuestionNumber.emit(currentQuestionNumber.value + 1)
         }
     }
 
     fun getPreviousQuestion() {
-        CoroutineScope(Dispatchers.Default).launch {
+        viewModelScope.launch {
             currentQuestionNumber.emit(currentQuestionNumber.value - 1)
         }
     }
 
     private suspend fun getQuizQuestions() {
         val list = quizRepository.getQuizQuestions()
-
-        quizQuestionsList.emit(
-            QuizResponseModel.QuizOptionList(
-                list
-            )
-        )
+        quizQuestionsList.emit(list.map { it.getModel() })
+        quizQuestionsListV2.emit(list.map { it.getModel() }.toMutableList())
     }
 
     fun updateSelectedOptions(quizOptionsModel: QuizOptionsModel) {
         viewModelScope.launch(coroutineExceptionHandler) {
-            if (quizQuestionsList.value !is QuizResponseModel.QuizOptionList) {
-                return@launch
-            }
-            val l =
-                (quizQuestionsList.value as QuizResponseModel.QuizOptionList).list.toMutableList()
-            quizQuestionsList.tryEmit(QuizResponseModel.Loading)
-            delay(2)
+            val l = quizQuestionsList.value.toMutableList()
             val i = l[currentQuestionNumber.value]
             i.options = i.options.map { c ->
-                c.oldIsSelected = c.isSelected
-                c.isSelected = c.id == quizOptionsModel.id
-                c.bg = if (c.isSelected && !c.isCorrectAnswer && i.isShowCorrectAnswer) {
-                    OptionBackground.RED
-                } else if (c.isCorrectAnswer && i.isShowCorrectAnswer) {
-                    OptionBackground.GREEN
-                } else if (c.isSelected) {
-                    OptionBackground.BLUE
-                } else {
-                    OptionBackground.WHITE
-                }
-                c
-            }.toMutableList() as ArrayList<QuizOptionsModel>
+                c.copy(
+                    oldIsSelected = c.isSelected,
+                    isSelected = c.id == quizOptionsModel.id,
+                    bg = if (c.isSelected && !c.isCorrectAnswer && i.isShowCorrectAnswer) {
+                        OptionBackground.RED
+                    } else if (c.isCorrectAnswer && i.isShowCorrectAnswer) {
+                        OptionBackground.GREEN
+                    } else if (c.isSelected) {
+                        OptionBackground.BLUE
+                    } else {
+                        OptionBackground.WHITE
+                    }
+                )
+            }.toMutableList()
             l[currentQuestionNumber.value] = i
-            quizQuestionsList.tryEmit(QuizResponseModel.QuizOptionList(l))
+            quizQuestionsList.tryEmit(l)
         }
     }
 
     fun showCorrectAnswers() {
         val list = quizQuestionsList.value
-        if (list is QuizResponseModel.QuizOptionList){
-            viewModelScope.launch {
-                quizQuestionsList.emit(QuizResponseModel.QuizOptionList(list.list.filter {
-                    it.isShowCorrectAnswer = true
-                    true
-                }))
-                currentQuestionNumber.emit(0)
+
+        viewModelScope.launch {
+            quizQuestionsList.emit(list.filter {
+                it.isShowCorrectAnswer = true
+                true
+            })
+            currentQuestionNumber.emit(0)
+        }
+    }
+
+    fun onButtonClicked(buttonType: ClickEventType) {
+        when (buttonType) {
+            ClickEventType.PREVIOUS -> {
+                currentQuestionNumber.apply {
+                    if (value > 0) {
+                        value -= value
+                    }
+                }
+            }
+
+            ClickEventType.NEXT -> {
+                currentQuestionNumber.apply {
+                    if (value < (quizQuestionsListV2.value?.size ?: 0)) {
+                        value += value
+                    }
+                }
+            }
+        }
+
+    }
+
+    fun updateQuestionList(currentQuestionModel: QuizModel, currentQuestionNumber: Int) {
+        viewModelScope.launch {
+            quizQuestionsListV2.update { questions ->
+                questions?.apply {
+                    println("==> ${this[currentQuestionNumber]}")
+                    println("==> $currentQuestionModel")
+                    this[currentQuestionNumber] = currentQuestionModel
+                }
             }
         }
     }
