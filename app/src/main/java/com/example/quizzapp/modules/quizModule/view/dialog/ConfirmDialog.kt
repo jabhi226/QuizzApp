@@ -7,6 +7,7 @@ import android.widget.Button
 import androidx.fragment.app.DialogFragment
 import com.example.quizzapp.R
 
+@Deprecated("Migrated to Jetpack Compose")
 class ConfirmDialog(val showCorrectAnswers: () -> Unit) : DialogFragment(R.layout.dialog_confirm) {
 
     override fun onStart() {

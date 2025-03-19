@@ -35,17 +35,4 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
-    override fun onBackPressed() {
-        val f = supportFragmentManager.findFragmentById(R.id.main_activity_fragments)
-        when (f) {
-            is QuizV2Fragment -> {
-                viewModel.getPreviousQuestion()
-            }
-
-            else -> {
-                super.onBackPressed()
-            }
-        }
-    }
-
 }

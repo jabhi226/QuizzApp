@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.quizzapp.databinding.ItemOptionsBinding
 import com.example.quizzapp.modules.quizModule.model.QuizOptionsModel
 
+@Deprecated("Migrated to Jetpack Compose")
 class QuizOptionsAdapter(val onOptionSelected: (QuizOptionsModel) -> Unit) :
     ListAdapter<QuizOptionsModel, RecyclerView.ViewHolder>(object :
         DiffUtil.ItemCallback<QuizOptionsModel>() {

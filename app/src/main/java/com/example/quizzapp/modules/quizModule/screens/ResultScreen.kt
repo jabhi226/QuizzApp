@@ -25,12 +25,19 @@ import com.example.quizzapp.modules.quizModule.components.ResultDetail
 import com.example.quizzapp.modules.quizModule.components.ScoreComponent
 import com.example.quizzapp.modules.quizModule.model.ResultAction
 import com.example.quizzapp.modules.quizModule.model.ResultDetailsModel
+import kotlinx.serialization.Serializable
 
 @Preview(showSystemUi = true)
 @Composable
 fun ResultScreen(
     modifier: Modifier = Modifier,
-    resultActions: List<ResultAction> = listOf(
+    totalQuestions: Int = 10,
+    totalCorrectAnswers: Int = 7,
+    totalInCorrectAnswer: Int = 3,
+    totalAttemptedQuestion: Int = 8
+) {
+
+    val resultActions: List<ResultAction> = listOf(
         ResultAction(
             "Play Again",
             R.drawable.ic_restart,
@@ -44,7 +51,6 @@ fun ResultScreen(
             R.color.color2
         )
     )
-) {
 
     val resultList = remember {
         mutableStateListOf<ResultDetailsModel>()
@@ -64,10 +70,10 @@ fun ResultScreen(
             "Incorrect",
         )
         val values = listOf(
-            "100%",
-            "10",
-            "6",
-            "4",
+            "${((totalAttemptedQuestion / totalQuestions) * 100)}%",
+            totalQuestions.toString(),
+            totalCorrectAnswers.toString(),
+            totalInCorrectAnswer.toString(),
         )
         for (i in colors.indices) {
             resultList.add(
@@ -96,7 +102,8 @@ fun ResultScreen(
 
             Box(modifier = Modifier) {
                 ScoreComponent(
-                    modifier = Modifier
+                    modifier = Modifier,
+                    score = ((totalAttemptedQuestion / totalQuestions) * 100).toFloat()
                 )
                 ResultDetail(
                     details = resultList
@@ -125,3 +132,11 @@ fun ResultScreen(
         }
     }
 }
+
+@Serializable
+data class ScreenResultScreen(
+    val totalQuestions: Int,
+    val totalCorrectAnswers: Int,
+    val totalInCorrectAnswers: Int,
+    val totalAttemptedQuestion: Int
+)

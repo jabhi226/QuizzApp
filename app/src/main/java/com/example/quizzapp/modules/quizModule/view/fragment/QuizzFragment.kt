@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Deprecated("Migrated to Jetpack Compose")
 @AndroidEntryPoint
 class QuizzFragment : Fragment() {
 
@@ -35,7 +36,7 @@ class QuizzFragment : Fragment() {
     lateinit var coroutineExceptionHandler: CoroutineExceptionHandler
 
     private val optionsAdapter = QuizOptionsAdapter { selectedOptionsModel ->
-        viewModel.updateSelectedOptions(selectedOptionsModel)
+//        viewModel.updateSelectedOptions(selectedOptionsModel)
     }
 
     override fun onCreateView(
@@ -75,28 +76,28 @@ class QuizzFragment : Fragment() {
 
     private fun observeData() {
         CoroutineScope(Dispatchers.Main).launch(coroutineExceptionHandler) {
-            viewModel.currentQuestion.collect {
-                if (it == null) {
-                    return@collect
-                }
-                binding.quizModel = it
-                optionsAdapter.submitList(it.options)
-            }
+//            viewModel.currentQuestion.collect {
+//                if (it == null) {
+//                    return@collect
+//                }
+//                binding.quizModel = it
+//                optionsAdapter.submitList(it.options)
+//            }
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            viewModel.uiEvent.collectLatest {
-                if (it == null) return@collectLatest
-                when (it) {
-                    101 -> {
-                        Utils.showToast(requireContext(), "Final Question")
-                        val dialog = ConfirmDialog {
-                            viewModel.showCorrectAnswers()
-                        }
-                        dialog.show(requireActivity().supportFragmentManager, null)
-                    }
-                }
-            }
+//            viewModel.uiEvent.collectLatest {
+//                if (it == null) return@collectLatest
+//                when (it) {
+//                    101 -> {
+//                        Utils.showToast(requireContext(), "Final Question")
+//                        val dialog = ConfirmDialog {
+//                            viewModel.showCorrectAnswers()
+//                        }
+//                        dialog.show(requireActivity().supportFragmentManager, null)
+//                    }
+//                }
+//            }
         }
     }
 
