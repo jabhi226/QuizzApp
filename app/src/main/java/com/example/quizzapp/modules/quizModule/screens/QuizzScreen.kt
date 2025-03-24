@@ -35,14 +35,15 @@ import com.example.quizzapp.R
 import com.example.quizzapp.modules.core.components.CommonButton
 import com.example.quizzapp.modules.core.components.CommonImage
 import com.example.quizzapp.modules.core.components.CommonText
+import com.example.quizzapp.modules.quizModule.Testing
 import com.example.quizzapp.modules.quizModule.components.AnswerComponent
 import com.example.quizzapp.modules.quizModule.components.QuestionComponent
 import com.example.quizzapp.modules.quizModule.model.QuizModel
+import com.example.quizzapp.modules.quizModule.model.QuizOptionsModel
 import com.example.quizzapp.modules.quizModule.viewModel.QuizViewModel
 import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
 
-@Preview(showSystemUi = true)
 @Composable
 fun QuizzScreen(
     modifier: Modifier = Modifier,
@@ -116,6 +117,12 @@ fun QuizzScreen(
             while (timer < 30F) {
                 delay(1000)
                 timer++
+            }
+            if (timer == 30F) {
+                handleClickEvents(
+                    if (currentQuestionNumber < (it.size - 1)) ClickEventType.NEXT else ClickEventType.SUBMIT,
+                    it[currentQuestionNumber].copy(timeTakenToSolve = timer)
+                )
             }
         }
     }
@@ -200,11 +207,11 @@ fun QuizzScreen(
                     }
 
                     item {
-                        Column {
-                            it[currentQuestionNumber].options.forEach {
-                                AnswerComponent(modifier = Modifier, question = it)
-                            }
-                        }
+                        AnswersComponent(
+                            question = it[currentQuestionNumber],
+                            updateSelectedOption = { updatedOption ->
+                                viewModel.updateSelectedOption(updatedOption, currentQuestionNumber)
+                            })
                     }
 
                     item {
@@ -227,6 +234,26 @@ fun QuizzScreen(
         }
     }
 
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AnswersComponent(
+    question: QuizModel = Testing.quizList()[0],
+    updateSelectedOption: (QuizOptionsModel) -> Unit = {}
+) {
+    Column {
+        question.options.forEach { option ->
+            AnswerComponent(
+                modifier = Modifier,
+                optionsModel = option,
+                isShowCorrectAnswer = question.isShowCorrectAnswer,
+                onAnswerSelected = {
+                    updateSelectedOption(it)
+                }
+            )
+        }
+    }
 }
 
 enum class ClickEventType {

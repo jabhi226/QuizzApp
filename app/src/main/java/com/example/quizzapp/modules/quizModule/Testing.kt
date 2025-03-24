@@ -9,40 +9,40 @@ object Testing {
     fun quizList(): ArrayList<QuizModel> {
         return arrayListOf(
             QuizModel().apply {
+                isShowCorrectAnswer = false
                 question =
                     "In what year did the United States host the FIFA World Cup for the First time?"
                 options = arrayListOf(
                     QuizOptionsModel(
                         id = "",
                         option = "1930",
-                        oldIsSelected = false,
-                        isSelected = false,
-                        isCorrectAnswer = false,
-                        bg = OptionBackground.BLUE
+                        isSelected = true,
+                        isCorrectAnswer = true,
+                        
                     ),
                     QuizOptionsModel(
                         id = "",
                         option = "1931",
-                        oldIsSelected = false,
+                        
                         isSelected = false,
                         isCorrectAnswer = false,
-                        bg = OptionBackground.BLUE
+                        
                     ),
                     QuizOptionsModel(
                         id = "",
                         option = "1932",
-                        oldIsSelected = false,
-                        isSelected = false,
+                        
+                        isSelected = true,
                         isCorrectAnswer = false,
-                        bg = OptionBackground.BLUE
+                        
                     ),
                     QuizOptionsModel(
                         id = "",
                         option = "1933",
-                        oldIsSelected = false,
+                        
                         isSelected = false,
                         isCorrectAnswer = false,
-                        bg = OptionBackground.BLUE
+                        
                     ),
                 )
             }

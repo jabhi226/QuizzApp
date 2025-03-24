@@ -1,11 +1,10 @@
-package com.example.quizzapp.modules.quizModule.view.activity
+package com.example.quizzapp.modules
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.quizzapp.R
 import com.example.quizzapp.databinding.ActivityMainBinding
 import com.example.quizzapp.modules.quizModule.screens.QuizV2Fragment
 import com.example.quizzapp.modules.quizModule.viewModel.QuizViewModel

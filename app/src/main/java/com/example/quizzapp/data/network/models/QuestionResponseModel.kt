@@ -21,10 +21,17 @@ data class QuestionV1Response(
 
 ) {
 
+    private var optionId = 0
     fun getDomainModel(): QuizModel {
         val options = ArrayList<Option>().apply {
-            addAll(incorrectAnswers.map { Option(Date().time.toString(), it, false) })
-            add(Option(Date().time.toString(), correctAnswer.toString(), true))
+            addAll(incorrectAnswers.map {
+                optionId++
+                Option(optionId.toString(), it, false)
+            })
+            optionId++
+            add(
+                Option(optionId.toString(), correctAnswer.toString(), true)
+            )
         }.shuffled()
         val correctAnswerPosition = options.map { it.optionValue }.indexOf(correctAnswer)
 

@@ -1,11 +1,13 @@
 package com.example.quizzapp.modules.quizModule.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,7 +26,9 @@ import com.example.quizzapp.modules.quizModule.model.QuizOptionsModel
 @Composable
 fun AnswerComponent(
     modifier: Modifier = Modifier,
-    question: QuizOptionsModel = Testing.quizList()[0].options[0]
+    optionsModel: QuizOptionsModel = Testing.quizList()[0].options[0],
+    isShowCorrectAnswer: Boolean = false,
+    onAnswerSelected: (QuizOptionsModel) -> Unit = {}
 ) {
 
     Row(
@@ -33,20 +37,43 @@ fun AnswerComponent(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-//            .shadow(
-//                elevation = 32.dp,
-//                shape = RoundedCornerShape(16.dp),
-//                clip = true,
-//            )
-            .background(color = Color.White, shape = RoundedCornerShape(16.dp))
+            .clickable {
+                onAnswerSelected(optionsModel)
+            }
+            .shadow(
+                elevation = if (optionsModel.isSelected) {
+                    8.dp
+                } else {
+                    0.dp
+                },
+                shape = RoundedCornerShape(16.dp),
+                clip = true,
+            )
+            .background(
+                color = if (optionsModel.isSelected) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    Color.White
+                },
+                shape = RoundedCornerShape(16.dp),
+            )
             .padding(16.dp)
+
     ) {
         CommonText(
             modifier = Modifier.fillMaxWidth(0.9F),
-            text = question.option,
+            text = optionsModel.option,
         )
-        CommonImage(
-            painter = painterResource(id = R.drawable.baseline_check_circle_24)
-        )
+        if (isShowCorrectAnswer) {
+            if (optionsModel.isCorrectAnswer) {
+                CommonImage(
+                    painter = painterResource(id = R.drawable.baseline_check_circle_24)
+                )
+            } else if (optionsModel.isSelected) {
+                CommonImage(
+                    painter = painterResource(id = R.drawable.baseline_cancel_24),
+                )
+            }
+        }
     }
 }

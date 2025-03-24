@@ -23,9 +23,7 @@ class QuizOptionsAdapter(val onOptionSelected: (QuizOptionsModel) -> Unit) :
             oldItem: QuizOptionsModel,
             newItem: QuizOptionsModel
         ): Boolean {
-            val r = (oldItem.id == newItem.id
-                    && oldItem.oldIsSelected == newItem.isSelected
-                    && oldItem.bg == newItem.bg)
+            val r = (oldItem.id == newItem.id)
             return r
         }
 

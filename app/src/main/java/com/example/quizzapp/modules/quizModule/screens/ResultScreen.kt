@@ -39,7 +39,7 @@ fun ResultScreen(
 
     val resultActions: List<ResultAction> = listOf(
         ResultAction(
-            "Play Again",
+            "Next Quizz",
             R.drawable.ic_restart,
             ResultAction.Companion.Action.PLAY_AGAIN,
             R.color.color1
@@ -103,7 +103,7 @@ fun ResultScreen(
             Box(modifier = Modifier) {
                 ScoreComponent(
                     modifier = Modifier,
-                    score = ((totalAttemptedQuestion / totalQuestions) * 100).toFloat()
+                    score = ((totalCorrectAnswers / totalQuestions) * 100).toFloat()
                 )
                 ResultDetail(
                     details = resultList

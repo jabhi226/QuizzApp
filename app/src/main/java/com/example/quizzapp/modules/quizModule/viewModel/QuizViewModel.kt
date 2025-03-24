@@ -4,14 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quizzapp.domain.repository.QuizRepository
 import com.example.quizzapp.modules.quizModule.model.DomainMapper.getModel
-import com.example.quizzapp.modules.quizModule.model.OptionBackground
 import com.example.quizzapp.modules.quizModule.model.QuizModel
 import com.example.quizzapp.modules.quizModule.model.QuizOptionsModel
-import com.example.quizzapp.modules.quizModule.screens.ClickEventType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -47,5 +44,49 @@ class QuizViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateSelectedOption(updatedOption: QuizOptionsModel, currentQuestionNumber: Int) {
+        viewModelScope.launch {
+            val currentList = quizQuestionsListV2.value?.toMutableList() ?: return@launch
+            var selectedIndex = -1
+            val currentQuestionModel = currentList[currentQuestionNumber]
+            currentQuestionModel.options =
+                currentQuestionModel.options.mapIndexed { index, quizOptionsModel ->
+                    if (quizOptionsModel.id == updatedOption.id) {
+                        selectedIndex = index
+                        quizOptionsModel.copy(isSelected = true)
+                    } else {
+                        quizOptionsModel.copy(isSelected = false)
+                    }
+                }.toMutableList()
+            currentList[currentQuestionNumber] = currentQuestionModel.copy(
+                selected = selectedIndex
+            )
+            println("==> ${currentList[currentQuestionNumber].options.joinToString()}")
+            quizQuestionsListV2.emit(currentList)
+            println("==> ${quizQuestionsListV2.value?.get(currentQuestionNumber)?.options?.joinToString()}")
+        }
+    }
+//
+//    fun updateSelectedOption(updatedOption: QuizOptionsModel, currentQuestionNumber: Int) {
+//        println("==> " + quizQuestionsListV2.value?.get(currentQuestionNumber)?.options)
+//        viewModelScope.launch {
+//            quizQuestionsListV2.emit(
+//                quizQuestionsListV2.value.apply {
+//                    this?.get(currentQuestionNumber)?.apply {
+//                        options = options.mapIndexed { index, quizOptionsModel ->
+//                            if (quizOptionsModel.id == updatedOption.id) {
+//                                selected = index
+//                                quizOptionsModel.copy(isSelected = true)
+//                            } else {
+//                                quizOptionsModel.copy(isSelected = false)
+//                            }
+//                        }.toMutableList()
+//                    }
+//                }
+//            )
+//        }
+//        println("--> " + quizQuestionsListV2.value?.get(currentQuestionNumber)?.options)
+//    }
 
 }

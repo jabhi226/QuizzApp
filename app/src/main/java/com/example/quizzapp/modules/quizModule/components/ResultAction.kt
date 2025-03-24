@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +37,7 @@ fun ResultAction(
         CommonImage(
             modifier = Modifier
                 .size(64.dp)
-                .background(color = colorResource(model.tint), shape = RoundedCornerShape(200.dp))
+                .background(color = MaterialTheme.colorScheme.inversePrimary, shape = RoundedCornerShape(200.dp))
                 .padding(8.dp),
             painter = painterResource(id = model.icon),
         )

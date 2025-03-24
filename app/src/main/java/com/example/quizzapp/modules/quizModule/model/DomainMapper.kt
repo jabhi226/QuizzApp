@@ -17,10 +17,8 @@ object DomainMapper {
         return QuizOptionsModel(
             id = this.optionId,
             option = this.optionValue,
-            oldIsSelected = false,
             isSelected = false,
             isCorrectAnswer = false,
-            bg = OptionBackground.GREEN
         )
     }
 
