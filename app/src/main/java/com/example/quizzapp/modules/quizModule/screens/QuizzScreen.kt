@@ -1,5 +1,6 @@
 package com.example.quizzapp.modules.quizModule.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -54,15 +56,17 @@ fun QuizzScreen(
 
     val questionsList by viewModel.quizQuestionsListV2.collectAsState(initial = null)
     var currentQuestionNumber by rememberSaveable { mutableIntStateOf(0) }
+    var selectedQuestion by remember { mutableStateOf<QuizModel?>(null) }
 
     var timer by remember { mutableFloatStateOf(0F) }
 
-    fun handleClickEvents(eventType: ClickEventType, model: QuizModel) {
-        questionsList?.let { questions ->
+    fun handleClickEvents(eventType: ClickEventType) {
+        val questions = questionsList ?: return
+        selectedQuestion?.let {
             when (eventType) {
                 ClickEventType.PREVIOUS -> {
                     viewModel.updateQuestionList(
-                        model,
+                        it.copy(timeTakenToSolve = timer),
                         currentQuestionNumber
                     )
                     while (currentQuestionNumber != 0) {
@@ -76,7 +80,7 @@ fun QuizzScreen(
 
                 ClickEventType.NEXT -> {
                     viewModel.updateQuestionList(
-                        model,
+                        it.copy(timeTakenToSolve = timer),
                         currentQuestionNumber
                     )
 
@@ -91,7 +95,7 @@ fun QuizzScreen(
 
                 ClickEventType.SUBMIT -> {
                     viewModel.updateQuestionList(
-                        model,
+                        it.copy(timeTakenToSolve = timer),
                         currentQuestionNumber
                     )
                     redirectToNextScreen(
@@ -105,23 +109,34 @@ fun QuizzScreen(
         }
     }
 
-    LaunchedEffect(questionsList) {
-        questionsList?.let {
-            timer = it[currentQuestionNumber].timeTakenToSolve
-        }
-    }
+//    LaunchedEffect(questionsList) {
+//        questionsList?.let {
+//            timer = it[currentQuestionNumber].timeTakenToSolve
+//        }
+//    }
 
     LaunchedEffect(currentQuestionNumber, questionsList) {
-        questionsList?.let {
-            timer = it[currentQuestionNumber].timeTakenToSolve
+        val list = questionsList ?: return@LaunchedEffect
+        selectedQuestion = list[currentQuestionNumber]
+        selectedQuestion?.let {
+            timer = it.timeTakenToSolve
             while (timer < 30F) {
                 delay(1000)
                 timer++
             }
             if (timer == 30F) {
                 handleClickEvents(
-                    if (currentQuestionNumber < (it.size - 1)) ClickEventType.NEXT else ClickEventType.SUBMIT,
-                    it[currentQuestionNumber].copy(timeTakenToSolve = timer)
+                    if (currentQuestionNumber < (list.size - 1)) ClickEventType.NEXT else ClickEventType.SUBMIT
+                )
+            }
+        }
+    }
+
+    BackHandler {
+        if (currentQuestionNumber != 0) {
+            selectedQuestion?.let {
+                handleClickEvents(
+                    ClickEventType.PREVIOUS
                 )
             }
         }
@@ -162,8 +177,7 @@ fun QuizzScreen(
                                     .fillMaxWidth()
                                     .clickable((currentQuestionNumber > 0), onClick = {
                                         handleClickEvents(
-                                            ClickEventType.PREVIOUS,
-                                            it[currentQuestionNumber].copy(timeTakenToSolve = timer)
+                                            ClickEventType.PREVIOUS
                                         )
                                     })
                                     .padding(vertical = 4.dp),
@@ -201,16 +215,28 @@ fun QuizzScreen(
                             currentQuestionNumber = currentQuestionNumber,
                             questionsList = it,
                             timer = timer,
-                            currentQuizQuestion = it[currentQuestionNumber],
+                            currentQuizQuestion = it[currentQuestionNumber].question,
                             handleClickEvents = { _, _ -> }
                         )
                     }
 
                     item {
                         AnswersComponent(
-                            question = it[currentQuestionNumber],
+                            question = selectedQuestion,
                             updateSelectedOption = { updatedOption ->
-                                viewModel.updateSelectedOption(updatedOption, currentQuestionNumber)
+                                var selectedIndex = -1
+                                selectedQuestion = selectedQuestion?.copy(
+                                    options = selectedQuestion?.options?.mapIndexed { index, quizOptionsModel ->
+                                        if (quizOptionsModel.id == updatedOption.id) {
+                                            selectedIndex = index
+                                            quizOptionsModel.copy(isSelected = true)
+                                        } else {
+                                            quizOptionsModel.copy(isSelected = false)
+                                        }
+                                    }?.toMutableList() ?: listOf(),
+                                    selected = selectedIndex
+                                )
+                                println("==> ${selectedQuestion?.selected}")
                             })
                     }
 
@@ -222,7 +248,6 @@ fun QuizzScreen(
                             onClick = {
                                 handleClickEvents(
                                     if (currentQuestionNumber < (it.size - 1)) ClickEventType.NEXT else ClickEventType.SUBMIT,
-                                    it[currentQuestionNumber].copy(timeTakenToSolve = timer)
                                 )
                             },
                             text = if (currentQuestionNumber < (it.size - 1)) "Next" else "Submit"
@@ -239,11 +264,11 @@ fun QuizzScreen(
 @Preview(showBackground = true)
 @Composable
 fun AnswersComponent(
-    question: QuizModel = Testing.quizList()[0],
+    question: QuizModel? = Testing.quizList()[0],
     updateSelectedOption: (QuizOptionsModel) -> Unit = {}
 ) {
     Column {
-        question.options.forEach { option ->
+        question?.options?.forEach { option ->
             AnswerComponent(
                 modifier = Modifier,
                 optionsModel = option,

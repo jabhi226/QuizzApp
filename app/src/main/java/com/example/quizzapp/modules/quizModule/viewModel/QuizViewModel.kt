@@ -44,29 +44,6 @@ class QuizViewModel @Inject constructor(
             }
         }
     }
-
-    fun updateSelectedOption(updatedOption: QuizOptionsModel, currentQuestionNumber: Int) {
-        viewModelScope.launch {
-            val currentList = quizQuestionsListV2.value?.toMutableList() ?: return@launch
-            var selectedIndex = -1
-            val currentQuestionModel = currentList[currentQuestionNumber]
-            currentQuestionModel.options =
-                currentQuestionModel.options.mapIndexed { index, quizOptionsModel ->
-                    if (quizOptionsModel.id == updatedOption.id) {
-                        selectedIndex = index
-                        quizOptionsModel.copy(isSelected = true)
-                    } else {
-                        quizOptionsModel.copy(isSelected = false)
-                    }
-                }.toMutableList()
-            currentList[currentQuestionNumber] = currentQuestionModel.copy(
-                selected = selectedIndex
-            )
-            println("==> ${currentList[currentQuestionNumber].options.joinToString()}")
-            quizQuestionsListV2.emit(currentList)
-            println("==> ${quizQuestionsListV2.value?.get(currentQuestionNumber)?.options?.joinToString()}")
-        }
-    }
 //
 //    fun updateSelectedOption(updatedOption: QuizOptionsModel, currentQuestionNumber: Int) {
 //        println("==> " + quizQuestionsListV2.value?.get(currentQuestionNumber)?.options)

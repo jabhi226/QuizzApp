@@ -36,7 +36,7 @@ fun QuestionComponent(
     questionsList: List<QuizModel> = Testing.quizList(),
     handleClickEvents: (ClickEventType, QuizModel) -> Unit = { _, _ -> },
     timer: Float = 10F,
-    currentQuizQuestion: QuizModel = Testing.quizList()[0]
+    currentQuizQuestion: String = Testing.quizList()[0].question
 ) {
 
     Box(
@@ -62,7 +62,7 @@ fun QuestionComponent(
                     .fillMaxWidth()
                     .padding(top = 8.dp),
                 fontSize = 16.sp,
-                text = currentQuizQuestion.question,
+                text = currentQuizQuestion,
             )
         }
         Row(
